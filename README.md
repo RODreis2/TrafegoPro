@@ -1,7 +1,7 @@
 # TrafegoPro
 
-Primeiro microsservico do projeto, organizado para estudar arquitetura
-hexagonal.
+The first microservice in the project, organized to study hexagonal
+architecture.
 
 ```text
 src/
@@ -24,15 +24,15 @@ src/
         postgres_user_repository.py
 ```
 
-## Responsabilidades
+## Responsibilities
 
 ```text
-domain      -> regras e entidades de negocio
-application -> casos de uso e contratos que a aplicacao precisa
-adapters    -> entrada e saida tecnica: HTTP, banco, filas, APIs externas
+domain      -> business rules and entities
+application -> use cases and contracts required by the application
+adapters    -> technical input and output: HTTP, database, queues, external APIs
 ```
 
-## Fluxo esperado
+## Expected Flow
 
 ```text
 controller inbound
