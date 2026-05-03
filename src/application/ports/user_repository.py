@@ -11,4 +11,8 @@ class UserRepository(ABC):
 
     @abstractmethod
     def get_by_id(self, user_id: UUID) -> User | None:
+        pass 
+
+    @abstractmethod 
+    def delete_users(self, user_id:UUID) -> None:
         pass
