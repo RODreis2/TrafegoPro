@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TrafegoPro</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="route-panel" aria-label="Formulario de rota">
+        <header class="panel-header">
+          <span class="brand-mark">TP</span>
+          <div>
+            <h1>TrafegoPro</h1>
+            <p>Monte uma rota com coletas e destino final.</p>
+          </div>
+        </header>
+
+        <form id="route-form" class="route-form">
+          <section class="form-section">
+            <label for="start-address">Ponto inicial</label>
+            <input
+              id="start-address"
+              name="start"
+              type="text"
+              autocomplete="street-address"
+              placeholder="Ex: Av. Paulista, 1000, Sao Paulo"
+              required
+            />
+          </section>
+
+          <section class="form-section">
+            <div class="section-title">
+              <label>Paradas</label>
+              <button id="add-pickup" type="button" class="ghost-button">
+                Adicionar
+              </button>
+            </div>
+            <div id="pickup-list" class="pickup-list"></div>
+          </section>
+
+          <section class="form-section">
+            <label for="destination-address">Destino final</label>
+            <input
+              id="destination-address"
+              name="destination"
+              type="text"
+              autocomplete="street-address"
+              placeholder="Ex: Aeroporto de Congonhas, Sao Paulo"
+              required
+            />
+          </section>
+
+          <button id="calculate-route" type="submit" class="primary-button">
+            Calcular rota
+          </button>
+        </form>
+
+        <section class="status-card" aria-live="polite">
+          <p id="status-message">Informe os enderecos para calcular.</p>
+        </section>
+
+        <section class="result-card">
+          <div class="result-summary">
+            <span>Distancia estimada</span>
+            <strong id="total-distance">--</strong>
+          </div>
+          <ol id="route-result" class="route-result"></ol>
+        </section>
+      </aside>
+
+      <section class="map-area" aria-label="Mapa da rota">
+        <div id="map"></div>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
