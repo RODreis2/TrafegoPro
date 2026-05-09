@@ -1,11 +1,16 @@
 import json
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+from urllib.error import URLError
 
 from src.application.services.geocoding_service import (
     GeocodedAddress,
     GeocodingService,
 )
+
+
+class GeocodingProviderError(RuntimeError):
+    pass
 
 
 class NominatimGeocodingService(GeocodingService):
@@ -52,5 +57,10 @@ class NominatimGeocodingService(GeocodingService):
             },
         )
 
-        with urlopen(request, timeout=10) as response:
-            return json.loads(response.read().decode("utf-8"))
+        try:
+            with urlopen(request, timeout=10) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except (TimeoutError, URLError, json.JSONDecodeError) as error:
+            raise GeocodingProviderError(
+                "The geocoding provider is temporarily unavailable."
+            ) from error

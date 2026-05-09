@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, status
 
 from src.adapters.outbound.services.nominatim_geocoding_service import (
+    GeocodingProviderError,
     NominatimGeocodingService,
 )
 from src.application.dto.request.geocode_request import GeocodeRequest
@@ -14,7 +15,13 @@ router = APIRouter(prefix="/geocode", tags=["geocoding"])
 @router.post("", response_model=GeocodeResponse)
 def geocode(geocode_request: GeocodeRequest) -> GeocodeResponse:
     use_case = GeocodeAddressUseCase(NominatimGeocodingService())
-    result = use_case.execute(geocode_request.address)
+    try:
+        result = use_case.execute(geocode_request.address)
+    except GeocodingProviderError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Geocoding provider is temporarily unavailable",
+        ) from error
 
     if result is None:
         raise HTTPException(
@@ -36,7 +43,13 @@ def search_geocode(
     q: str = Query(min_length=3),
     limit: int = Query(default=5, ge=1, le=10),
 ) -> list[GeocodeResponse]:
-    results = NominatimGeocodingService().search(q, limit=limit)
+    try:
+        results = NominatimGeocodingService().search(q, limit=limit)
+    except GeocodingProviderError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Geocoding provider is temporarily unavailable",
+        ) from error
 
     return [
         GeocodeResponse(
