@@ -4,6 +4,36 @@ const WORLD_BOUNDS = [
   [-85, -180],
   [85, 180],
 ];
+const DEFAULT_ROUTE = {
+  start: "Av. Paulista, 1000, Bela Vista, São Paulo, SP",
+  stops: [
+    {
+      address: "Rua Augusta, 1500, Consolação, São Paulo, SP",
+      type: "pickup",
+    },
+    {
+      address: "Rua Oscar Freire, 777, Jardins, São Paulo, SP",
+      type: "pickup",
+    },
+    {
+      address: "Parque Ibirapuera, São Paulo, SP",
+      type: "stop",
+    },
+    {
+      address:
+        "Shopping Eldorado, Avenida Rebouças, 3970, Pinheiros, São Paulo, SP",
+      type: "dropoff",
+    },
+  ],
+  destination: "Aeroporto de Congonhas, São Paulo, SP",
+};
+const STOP_MARKER_CLASSES = {
+  start: "route-marker-start",
+  pickup: "route-marker-pickup",
+  dropoff: "route-marker-dropoff",
+  stop: "route-marker-stop",
+  destination: "route-marker-destination",
+};
 
 const form = document.querySelector("#route-form");
 const startInput = document.querySelector("#start-address");
@@ -47,30 +77,31 @@ let markers = [];
 let previewMarkers = [];
 let routeLine = null;
 
-function createPickupInput(value = "") {
+function createPickupInput(value = "", type = "pickup") {
   const row = document.createElement("div");
   row.className = "pickup-row";
 
   const typeSelect = document.createElement("select");
   typeSelect.className = "pickup-type";
-  typeSelect.innerHTML = `
-    <option value="pickup">Coleta</option>
-    <option value="dropoff">Entrega</option>
-    <option value="stop">Parada</option>
-  `;
+  typeSelect.append(
+    new Option("Coleta", "pickup"),
+    new Option("Entrega", "dropoff"),
+    new Option("Parada", "stop"),
+  );
 
   const input = document.createElement("input");
   input.type = "text";
   input.className = "pickup-address";
-  input.placeholder = "Endereco da parada";
+  input.placeholder = "Endereço da parada";
   input.required = true;
   input.value = value;
+  typeSelect.value = type;
 
   const removeButton = document.createElement("button");
   removeButton.type = "button";
   removeButton.className = "remove-pickup";
   removeButton.textContent = "X";
-  removeButton.title = "Remover coleta";
+  removeButton.title = "Remover parada";
   removeButton.addEventListener("click", () => {
     if (pickupList.children.length > 1) {
       row.remove();
@@ -80,6 +111,18 @@ function createPickupInput(value = "") {
   row.append(typeSelect, input, removeButton);
   pickupList.appendChild(row);
   enhanceAddressInput(input);
+}
+
+function loadDefaultDemoRoute() {
+  startInput.value = DEFAULT_ROUTE.start;
+  destinationInput.value = DEFAULT_ROUTE.destination;
+  pickupList.replaceChildren();
+
+  for (const stop of DEFAULT_ROUTE.stops) {
+    createPickupInput(stop.address, stop.type);
+  }
+
+  setStatus("Rota de exemplo carregada. Revise os endereços ou calcule a rota.");
 }
 
 function enhanceAddressInput(input) {
@@ -173,7 +216,7 @@ async function postJson(url, payload) {
 
   if (!response.ok) {
     const detail = await response.json().catch(() => null);
-    throw new Error(detail?.detail || "A requisicao falhou.");
+    throw new Error(detail?.detail || "A requisição falhou.");
   }
 
   return response.json();
@@ -192,7 +235,7 @@ async function searchAddresses(query) {
     `/geocode/search?q=${encodeURIComponent(query)}&limit=5`,
   );
   if (!response.ok) {
-    throw new Error("Nao foi possivel buscar sugestoes.");
+    throw new Error("Não foi possível buscar sugestões.");
   }
 
   const results = await response.json();
@@ -208,12 +251,12 @@ async function fetchRoadGeometry(stops) {
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error("Nao foi possivel calcular a rota pelas ruas.");
+    throw new Error("Não foi possível calcular a rota pelas ruas.");
   }
 
   const data = await response.json();
   if (data.code !== "Ok" || !data.routes?.[0]?.geometry?.coordinates) {
-    throw new Error("O OSRM nao encontrou uma rota pelas ruas.");
+    throw new Error("O OSRM não encontrou uma rota pelas ruas.");
   }
 
   return {
@@ -234,6 +277,18 @@ function toRouteStop(label, geocodedAddress, type = undefined) {
     longitude: geocodedAddress.longitude,
     type,
   };
+}
+
+function routeStopLabel(type, indexByType) {
+  const baseLabels = {
+    pickup: "Coleta",
+    dropoff: "Entrega",
+    stop: "Parada",
+  };
+  const label = baseLabels[type] || "Parada";
+  indexByType[type] = (indexByType[type] || 0) + 1;
+
+  return `${label} ${indexByType[type]}`;
 }
 
 function selectedAddressFromInput(input) {
@@ -297,15 +352,51 @@ function addPreviewMarker(input, result) {
     fillColor: "#21a0a0",
     fillOpacity: 0.86,
     weight: 2,
-  })
-    .addTo(map)
-    .bindPopup(result.display_name);
+  }).addTo(map);
+
+  const popup = document.createElement("span");
+  popup.textContent = result.display_name;
+  marker.bindPopup(popup);
 
   input.previewMarker = marker;
   previewMarkers.push(marker);
   map.setView([result.latitude, result.longitude], Math.max(map.getZoom(), 14), {
     animate: false,
   });
+}
+
+function createRouteMarker(stop) {
+  const markerClass = STOP_MARKER_CLASSES[stop.type] || STOP_MARKER_CLASSES.stop;
+  const icon = L.divIcon({
+    className: "",
+    html: `<span class="route-marker ${markerClass}"><span>${stop.sequence + 1}</span></span>`,
+    iconSize: [34, 42],
+    iconAnchor: [17, 34],
+    popupAnchor: [0, -34],
+  });
+
+  return L.marker([stop.latitude, stop.longitude], { icon });
+}
+
+function createRoutePopup(stop) {
+  const popup = document.createElement("div");
+  popup.className = "route-popup";
+
+  const label = document.createElement("strong");
+  label.textContent = `${stop.sequence + 1}. ${stop.label}`;
+
+  const type = document.createElement("span");
+  type.textContent = formatStopType(stop.type);
+
+  popup.append(label, type);
+
+  if (stop.address) {
+    const address = document.createElement("small");
+    address.textContent = stop.address;
+    popup.append(address);
+  }
+
+  return popup;
 }
 
 function clearMap() {
@@ -355,11 +446,9 @@ async function renderMap(stops) {
   }).addTo(map);
 
   stops.forEach((stop) => {
-    const marker = L.marker([stop.latitude, stop.longitude])
+    const marker = createRouteMarker(stop)
       .addTo(map)
-      .bindPopup(
-        `<span class="marker-label">${stop.sequence + 1}. ${stop.label}</span><br>${stop.type}`,
-      );
+      .bindPopup(createRoutePopup(stop));
     markers.push(marker);
   });
 
@@ -388,9 +477,9 @@ function renderResult(route) {
     title.textContent = stop.label;
 
     const meta = document.createElement("span");
-    const leg = stop.sequence === 0 ? "inicio" : `+${stop.leg_distance_km} km`;
+    const leg = stop.sequence === 0 ? "início" : `+${stop.leg_distance_km} km`;
     meta.textContent = `${formatStopType(stop.type)} - ${leg} - ${
-      stop.address || "sem endereco salvo"
+      stop.address || "sem endereço salvo"
     }`;
 
     details.append(title, meta);
@@ -401,7 +490,7 @@ function renderResult(route) {
 
 function formatStopType(type) {
   const labels = {
-    start: "inicio",
+    start: "início",
     pickup: "coleta",
     dropoff: "entrega",
     stop: "parada",
@@ -421,7 +510,7 @@ async function handleSubmit(event) {
   }
 
   setLoading(true);
-  setStatus("Convertendo enderecos em coordenadas...");
+  setStatus("Convertendo endereços em coordenadas...");
 
   try {
     const start =
@@ -431,19 +520,24 @@ async function handleSubmit(event) {
       selectedAddressFromInput(destinationInput) ||
       (await geocodeAddress(destinationInput.value.trim()));
     const stops = [];
+    const indexByType = {};
 
-    for (const [index, stop] of stopsFromForm.entries()) {
+    for (const stop of stopsFromForm) {
       const geocodedStop =
         stop.selected || (await geocodeAddress(stop.address));
       stops.push(
-        toRouteStop(`Parada ${index + 1}`, geocodedStop, stop.type),
+        toRouteStop(
+          routeStopLabel(stop.type, indexByType),
+          geocodedStop,
+          stop.type,
+        ),
       );
     }
 
     setStatus("Calculando melhor ordem das paradas...");
 
     const optimizedRoute = await postJson("/routes/optimize", {
-      start: toRouteStop("Inicio", start),
+      start: toRouteStop("Início", start),
       stops,
       destination: toRouteStop("Destino", destination),
     });
@@ -462,5 +556,4 @@ form.addEventListener("submit", handleSubmit);
 
 enhanceAddressInput(startInput);
 enhanceAddressInput(destinationInput);
-createPickupInput("Av. Paulista, 1000, Sao Paulo, SP");
-createPickupInput("Rua Augusta, 1500, Sao Paulo, SP");
+loadDefaultDemoRoute();

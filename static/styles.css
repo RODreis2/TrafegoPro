@@ -8,6 +8,10 @@
   --accent-strong: #0f5268;
   --accent-soft: #e4f4f8;
   --danger: #b42318;
+  --pickup: #147d64;
+  --dropoff: #bd4b00;
+  --stop: #4c5fd5;
+  --destination: #b42318;
 }
 
 * {
@@ -106,18 +110,21 @@ label,
 
 input {
   width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  border: 1px solid #cbd6e2;
+  min-height: 48px;
+  padding: 11px 13px;
+  border: 1px solid #9db2c8;
   border-radius: 8px;
-  background: #fbfdff;
+  background: #fff;
   color: var(--text);
   outline: none;
+  box-shadow: 0 1px 0 rgba(22, 32, 51, 0.04);
 }
 
 input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(23, 107, 135, 0.16);
+  box-shadow:
+    0 0 0 3px rgba(23, 107, 135, 0.2),
+    0 8px 22px rgba(22, 32, 51, 0.1);
 }
 
 .address-field {
@@ -131,22 +138,22 @@ input:focus {
 
 .suggestions {
   position: absolute;
-  z-index: 1200;
+  z-index: 1400;
   top: calc(100% + 6px);
   right: 0;
   left: 0;
-  max-height: 230px;
+  max-height: 260px;
   overflow-y: auto;
-  border: 1px solid #cbd6e2;
+  border: 1px solid #8fa8c0;
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 10px 24px rgba(26, 42, 68, 0.16);
+  box-shadow: 0 18px 36px rgba(26, 42, 68, 0.22);
 }
 
 .suggestion-option {
   display: block;
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 13px;
   border: 0;
   border-bottom: 1px solid #edf2f7;
   background: #fff;
@@ -182,11 +189,11 @@ input:focus {
 
 .pickup-type {
   width: 100%;
-  min-height: 44px;
+  min-height: 48px;
   padding: 10px 8px;
-  border: 1px solid #cbd6e2;
+  border: 1px solid #9db2c8;
   border-radius: 8px;
-  background: #fbfdff;
+  background: #fff;
   color: var(--text);
 }
 
@@ -554,8 +561,90 @@ input:focus {
   will-change: auto;
 }
 
-.marker-label {
+.route-marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid #fff;
+  border-radius: 999px 999px 999px 2px;
+  box-shadow:
+    0 3px 10px rgba(22, 32, 51, 0.3),
+    0 0 0 1px rgba(22, 32, 51, 0.12);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  transform: rotate(-45deg);
+}
+
+.route-marker::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+.route-marker {
+  background: var(--accent);
+}
+
+.route-marker-start {
+  background: var(--accent-strong);
+}
+
+.route-marker-pickup {
+  background: var(--pickup);
+}
+
+.route-marker-dropoff {
+  background: var(--dropoff);
+}
+
+.route-marker-stop {
+  background: var(--stop);
+}
+
+.route-marker-destination {
+  background: var(--destination);
+}
+
+.route-marker {
+  text-indent: 0;
+}
+
+.route-marker > span {
+  position: relative;
+  z-index: 1;
+  transform: rotate(45deg);
+}
+
+.route-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+  text-align: left;
+}
+
+.route-popup strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.route-popup span {
+  color: var(--accent-strong);
+  font-size: 12px;
   font-weight: 800;
+  text-transform: uppercase;
+}
+
+.route-popup small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 @media (max-width: 860px) {

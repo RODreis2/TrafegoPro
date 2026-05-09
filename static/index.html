@@ -8,12 +8,12 @@
   </head>
   <body>
     <main class="app-shell">
-      <aside class="route-panel" aria-label="Formulario de rota">
+      <aside class="route-panel" aria-label="Formulário de rota">
         <header class="panel-header">
           <span class="brand-mark">TP</span>
           <div>
             <h1>TrafegoPro</h1>
-            <p>Monte uma rota com coletas e destino final.</p>
+            <p>Planeje coletas, entregas e paradas em uma única rota.</p>
           </div>
         </header>
 
@@ -25,7 +25,7 @@
               name="start"
               type="text"
               autocomplete="street-address"
-              placeholder="Ex: Av. Paulista, 1000, Sao Paulo"
+              placeholder="Ex: Av. Paulista, 1000, São Paulo"
               required
             />
           </section>
@@ -47,7 +47,7 @@
               name="destination"
               type="text"
               autocomplete="street-address"
-              placeholder="Ex: Aeroporto de Congonhas, Sao Paulo"
+              placeholder="Ex: Aeroporto de Congonhas, São Paulo"
               required
             />
           </section>
@@ -58,12 +58,12 @@
         </form>
 
         <section class="status-card" aria-live="polite">
-          <p id="status-message">Informe os enderecos para calcular.</p>
+          <p id="status-message">Informe os endereços para calcular.</p>
         </section>
 
         <section class="result-card">
           <div class="result-summary">
-            <span>Distancia estimada</span>
+            <span>Distância estimada</span>
             <strong id="total-distance">--</strong>
           </div>
           <ol id="route-result" class="route-result"></ol>
