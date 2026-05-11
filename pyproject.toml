@@ -1,15 +1,12 @@
 [project]
 name = "trafegopro"
 version = "0.1.0"
-description = "Add your description here"
+description = "MVP de planejamento e otimizacao de rotas com FastAPI, Leaflet e OpenStreetMap"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.136.1",
-    "ortools>=9.15.6755",
-    "psycopg[binary]>=3.3.4",
     "pydantic>=2.13.3",
-    "sqlalchemy>=2.0.49",
     "uvicorn>=0.46.0",
 ]
 
