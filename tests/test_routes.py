@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from main import app
-from src.application.dto.request.route_request import MAX_ROUTE_STOPS
+from src.adapters.inbound.dto.request.route_request import MAX_ROUTE_STOPS
 
 
 client = TestClient(app)

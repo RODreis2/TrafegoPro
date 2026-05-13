@@ -1,5 +1,5 @@
-from src.application.dto.request.route_request import RouteStopRequest
-from src.application.dto.response.route_response import (
+from src.adapters.inbound.dto.request.route_request import RouteStopRequest
+from src.adapters.inbound.dto.response.route_response import (
     OptimizeRouteResponse,
     RouteStopResponse,
 )

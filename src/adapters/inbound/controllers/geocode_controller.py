@@ -4,8 +4,8 @@ from src.adapters.outbound.services.nominatim_geocoding_service import (
     GeocodingProviderError,
     NominatimGeocodingService,
 )
-from src.application.dto.request.geocode_request import GeocodeRequest
-from src.application.dto.response.geocode_response import GeocodeResponse
+from src.adapters.inbound.dto.request.geocode_request import GeocodeRequest
+from src.adapters.inbound.dto.response.geocode_response import GeocodeResponse
 from src.application.use_cases.geocode_address import GeocodeAddressUseCase
 
 

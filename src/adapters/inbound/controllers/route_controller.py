@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from src.application.dto.request.route_request import OptimizeRouteRequest
-from src.application.dto.response.route_response import OptimizeRouteResponse
-from src.application.mapper.route_mapper import RouteMapper
+from src.adapters.inbound.dto.request.route_request import OptimizeRouteRequest
+from src.adapters.inbound.dto.response.route_response import OptimizeRouteResponse
+from src.adapters.inbound.mappers.route_mapper import RouteMapper
 from src.application.services.route_optimizer import RouteOptimizer
 from src.application.use_cases.optimize_route import OptimizeRouteUseCase
 
