@@ -1,19 +1,16 @@
 import json
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 from urllib.error import URLError
+from urllib.request import Request, urlopen
 
-from src.application.services.geocoding_service import (
+from src.application.ports.geocoding_port import (
     GeocodedAddress,
-    GeocodingService,
+    GeocodingPort,
+    GeocodingPortError,
 )
 
 
-class GeocodingProviderError(RuntimeError):
-    pass
-
-
-class NominatimGeocodingService(GeocodingService):
+class NominatimGeocodingService(GeocodingPort):
     BASE_URL = "https://nominatim.openstreetmap.org/search"
     USER_AGENT = "TrafegoPro/0.1 (development)"
 
@@ -61,6 +58,6 @@ class NominatimGeocodingService(GeocodingService):
             with urlopen(request, timeout=10) as response:
                 return json.loads(response.read().decode("utf-8"))
         except (TimeoutError, URLError, json.JSONDecodeError) as error:
-            raise GeocodingProviderError(
+            raise GeocodingPortError(
                 "The geocoding provider is temporarily unavailable."
             ) from error

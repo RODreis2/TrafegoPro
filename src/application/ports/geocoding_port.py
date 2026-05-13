@@ -11,7 +11,11 @@ class GeocodedAddress:
     display_name: str
 
 
-class GeocodingService(ABC):
+class GeocodingPortError(RuntimeError):
+    pass
+
+
+class GeocodingPort(ABC):
     @abstractmethod
     def geocode(self, address: str) -> GeocodedAddress | None:
         pass
